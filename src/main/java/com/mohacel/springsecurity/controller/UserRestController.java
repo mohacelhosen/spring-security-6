@@ -10,12 +10,12 @@ public class UserRestController {
 
     @GetMapping("/welcome")
     public String welcome(){
-        return "Welcome the world of Spring rest API";
+        return "Welcome the world of Spring rest API 😇";
     }
 
     @GetMapping("/test")
     public String test(){
-        String msg = "Authentication Accepted";
+        String msg = "Authentication Accepted ✅";
         return msg;
     }
 }
