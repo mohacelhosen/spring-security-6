@@ -12,8 +12,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 public class UserRestController {
-    @Autowired
+
     private IUserService service;
+
+    @Autowired
+    public void setService(IUserService service) {
+        this.service = service;
+    }
 
 
     @GetMapping("/welcome")
@@ -23,18 +28,18 @@ public class UserRestController {
 
     @GetMapping("/test")
     public String test(){
-        String msg = "Authentication Accepted ✅";
-        return msg;
+        return "Authentication Accepted ✅";
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UserDto user){
         boolean register = service.register(user);
         String message = null;
-        if (register==true){
+        if (register){
             message="Registration Successfully ✅";
+        }else{
+            message="Registration Fail ❌";
         }
-        message="Registration Fail ❌";
         return  new ResponseEntity<>(message, HttpStatus.OK);
     }
 

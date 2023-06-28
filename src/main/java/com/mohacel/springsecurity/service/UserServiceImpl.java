@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class UserServiceImpl implements IUserService{
@@ -26,7 +26,9 @@ public class UserServiceImpl implements IUserService{
         UserEntity userEntity = new UserEntity();
         BeanUtils.copyProperties(user, userEntity);
         System.out.println(userEntity);
-        return repository.save(userEntity).getUserId() !=null;
+        UserEntity registeredUser = repository.save(userEntity);
+        System.out.println(registeredUser);
+        return registeredUser.getUserId() !=null;
     }
 
     @Override
