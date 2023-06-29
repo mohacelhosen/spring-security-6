@@ -6,6 +6,7 @@ import com.mohacel.springsecurity.exception.InvalidUserIdException;
 import com.mohacel.springsecurity.repository.UserRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,15 +17,24 @@ import java.util.List;
 public class UserServiceImpl implements IUserService{
 
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserServiceImpl(UserRepository repository){
-        this.repository =repository;
+    public UserServiceImpl(UserRepository repository, PasswordEncoder passwordEncoder) {
+        this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public boolean register(UserDto user) {
         UserEntity userEntity = new UserEntity();
         BeanUtils.copyProperties(user, userEntity);
+        userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getDesignation().equalsIgnoreCase("admin")){
+            userEntity.setRole("ROLE_ADMIN,ROLE_USER");
+        }else {
+            userEntity.setRole("ROLE_USER");
+        }
         System.out.println(userEntity);
         UserEntity registeredUser = repository.save(userEntity);
         System.out.println(registeredUser);

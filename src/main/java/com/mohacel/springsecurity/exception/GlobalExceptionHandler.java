@@ -15,4 +15,12 @@ public class GlobalExceptionHandler {
         info.setMessage(invalidUserId.getMessage());
         return new ResponseEntity<>(info, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public  ResponseEntity<ExceptionInfo> invalidCredentials(InvalidCredentialsException invalidCredentials){
+        ExceptionInfo info = new ExceptionInfo();
+        info.setCode("Invalid:144");
+        info.setMessage(invalidCredentials.getMessage());
+        return new ResponseEntity<>(info, HttpStatus.NOT_FOUND);
+    }
 }
