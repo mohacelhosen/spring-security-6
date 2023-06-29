@@ -3,8 +3,10 @@ package com.mohacel.springsecurity.controller;
 import com.mohacel.springsecurity.dto.UserDto;
 import com.mohacel.springsecurity.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,12 +46,14 @@ public class UserRestController {
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId){
         UserDto userById = service.findUserById(userId);
         return  new ResponseEntity<>(userById, HttpStatus.OK);
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserDto>> allUser(){
         List<UserDto> userDtoList = service.allUser();
         return new ResponseEntity<>(userDtoList, HttpStatus.OK);
