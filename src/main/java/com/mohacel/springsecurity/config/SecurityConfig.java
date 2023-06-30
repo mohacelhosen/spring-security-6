@@ -1,6 +1,8 @@
 package com.mohacel.springsecurity.config;
 
 import com.mohacel.springsecurity.service.UserDetailsServiceImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,26 +19,27 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private static final Logger log = LogManager.getLogger(SecurityConfig.class);
     @Autowired
-    private  UserDetailsServiceImpl userDetailsService;
+    private UserDetailsServiceImpl userDetailsService;
 
     // authorization
     @Bean
-   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
-       return  http.csrf(csrf-> csrf.disable())
-               .authorizeHttpRequests(auth->auth.requestMatchers("/user/welcome", "/user/register").permitAll()
-                       .anyRequest().authenticated())
-               .formLogin().and().build();
-   }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return  new BCryptPasswordEncoder();
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/user/welcome", "/user/register").permitAll()
+                        .anyRequest().authenticated())
+                .formLogin().and().build();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider daoAuthProvider =  new DaoAuthenticationProvider();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
         daoAuthProvider.setUserDetailsService(userDetailsService);
         daoAuthProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthProvider;
