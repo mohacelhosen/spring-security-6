@@ -9,35 +9,37 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository repository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserDetailsServiceImpl(UserRepository repository) {
         this.repository = repository;
-
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = repository.findUserEntityByEmail(email);
+        Optional<UserEntity> user = repository.findUserEntityByEmail(email);
 
-        if (user !=null){
-            return new User(user.getEmail(),  user.getPassword(), authority(user.getRole()));
-        }else{
-            throw new InvalidCredentialsException("Invalid Email or Password");
+        if (user.isPresent()) {
+            return new User(user.get().getEmail(), passwordEncoder.encode(user.get().getPassword()), authorities(user.get().getRole()));
+        } else {
+            throw new InvalidCredentialsException("Invalid email or Password");
         }
     }
 
-    public List<SimpleGrantedAuthority> authority(String userRole){
-        List<SimpleGrantedAuthority> roles = Arrays.stream(userRole.split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-        return roles;
+    public List<SimpleGrantedAuthority> authorities(String roles) {
+        return Arrays.stream(roles.split(",")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 }
