@@ -1,16 +1,16 @@
 package com.mohacel.springsecurity.controller;
 
-import com.mohacel.springsecurity.dto.LoginUser;
+import com.mohacel.springsecurity.dto.LoginInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class LoginController {
 
-    @GetMapping("/user/login")
-    public ResponseEntity<String> login(@RequestBody LoginUser user){
+    @PostMapping("/user/login")
+    public ResponseEntity<String> login(@RequestBody LoginInfo userLoginInfo){
         return null;
     }
 
