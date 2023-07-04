@@ -1,22 +1,33 @@
 package com.mohacel.springsecurity.controller;
 
+import com.mohacel.springsecurity.dto.LoginInfo;
 import com.mohacel.springsecurity.dto.UserDto;
 import com.mohacel.springsecurity.service.IUserService;
+import com.mohacel.springsecurity.service.jwt.JwtTokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserRestController {
     private static final Logger logger = LogManager.getLogger(UserRestController.class);
+    @Autowired
+    private JwtTokenUtil jwtService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     private IUserService service;
 
@@ -64,5 +75,20 @@ public class UserRestController {
     public ResponseEntity<List<UserDto>> allUser() {
         List<UserDto> userDtoList = service.allUser();
         return new ResponseEntity<>(userDtoList, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginInfo userLoginInfo) {
+        log.info("⭕ UserRestController:login  " + userLoginInfo.toString());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(userLoginInfo.getEmail(), userLoginInfo.getPassword()));
+        log.info("⭕ UserRestController:login  authentication object" + authentication.toString());
+
+        if (authentication.isAuthenticated()) {
+            String token = jwtService.generateToken(userLoginInfo.getEmail());
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        }
+        throw new BadCredentialsException("Invalid email or password!");
     }
 }

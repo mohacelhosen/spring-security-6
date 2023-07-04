@@ -2,6 +2,7 @@ package com.mohacel.springsecurity.controller;
 
 import com.mohacel.springsecurity.dto.LoginInfo;
 import com.mohacel.springsecurity.service.jwt.JwtTokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+@Slf4j
 @Controller
 public class LoginController {
     @Autowired
@@ -20,10 +21,13 @@ public class LoginController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @PostMapping("/user/login")
+    @PostMapping("/user/authenticate")
     public ResponseEntity<?> login(@RequestBody LoginInfo userLoginInfo) {
+        log.info("LoginController:login Login Info=  "+userLoginInfo.toString());
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userLoginInfo.getEmail(), userLoginInfo.getPassword()));
+        log.info("LoginController:login authenticated object");
         if (authentication.isAuthenticated()) {
             String token = jwtService.generateToken(userLoginInfo.getEmail());
             return new ResponseEntity<>(token, HttpStatus.OK);

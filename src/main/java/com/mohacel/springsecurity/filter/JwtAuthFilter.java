@@ -18,10 +18,18 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
-    @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    public void setJwtTokenUtil(JwtTokenUtil jwtTokenUtil) {
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
+
+    @Autowired
+    public void setUserDetailsService(UserDetailsServiceImpl userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     // every time this filter will intercept and perform all the step
     @Override
@@ -29,12 +37,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String userEmail = null;
-        boolean isExpired = false;
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7); // step-1 extract token
             userEmail = jwtTokenUtil.extractUserEmail(token); //step-2 extract email
-            isExpired = jwtTokenUtil.isTokenExpired(token);
         }
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail); // step-3 load user details service
             if (jwtTokenUtil.validateToken(token, userDetails)) { // step-4 validate the token via token and userDetails

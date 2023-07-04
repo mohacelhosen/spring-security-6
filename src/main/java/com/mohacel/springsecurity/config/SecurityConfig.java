@@ -1,5 +1,6 @@
 package com.mohacel.springsecurity.config;
 
+import com.mohacel.springsecurity.filter.JwtAuthFilter;
 import com.mohacel.springsecurity.service.UserDetailsServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,9 +14,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -25,38 +29,44 @@ public class SecurityConfig {
     private static final Logger log = LogManager.getLogger(SecurityConfig.class);
 
     private final UserDetailsServiceImpl userDetailsService;
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
 
     @Autowired
     public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return  new BCryptPasswordEncoder();
+    }
+
     // authorization
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("Security Filter Chain Method Executed ✅");
-        return http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/user/welcome", "/user/register").permitAll()
-                        .anyRequest().authenticated()).formLogin().and().build();
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        log.info("SecurityConfig:securityFilterChain method executed ✅");
+        return http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/user/welcome", "/user/register", "/user/authenticate", "/user/login").permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider daoAuthProvider=new DaoAuthenticationProvider();
         daoAuthProvider.setUserDetailsService(userDetailsService);
         daoAuthProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthProvider;
     }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+        return  config.getAuthenticationManager();
     }
+
 
 }
