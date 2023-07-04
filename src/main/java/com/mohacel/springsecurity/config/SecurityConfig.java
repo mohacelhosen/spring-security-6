@@ -29,8 +29,12 @@ public class SecurityConfig {
     private static final Logger log = LogManager.getLogger(SecurityConfig.class);
 
     private final UserDetailsServiceImpl userDetailsService;
-    @Autowired
     private JwtAuthFilter jwtAuthFilter;
+
+    @Autowired
+    public void setJwtAuthFilter(JwtAuthFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
 
     @Autowired
     public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
