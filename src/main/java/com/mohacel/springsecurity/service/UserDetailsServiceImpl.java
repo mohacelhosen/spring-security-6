@@ -3,6 +3,7 @@ package com.mohacel.springsecurity.service;
 import com.mohacel.springsecurity.entity.UserEntity;
 import com.mohacel.springsecurity.exception.InvalidCredentialsException;
 import com.mohacel.springsecurity.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -16,7 +17,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRepository repository;
 
@@ -29,6 +32,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<UserEntity> user = repository.findUserEntityByEmail(email);
+        log.info("UserDetailsServiceImpl:loadUserByUsername method executed ✅");
+        log.info("UserDetailsServiceImpl:loadUserByUsername, email:: "+email.toString());
+        log.info("UserDetailsServiceImpl:loadUserByUsername, database user:: "+user.toString());
 
         if (user.isPresent()) {
             return new User(user.get().getEmail(), user.get().getPassword(), authorities(user.get().getRole()));

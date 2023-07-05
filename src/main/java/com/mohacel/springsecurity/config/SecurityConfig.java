@@ -62,13 +62,16 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
+        log.info("✅ SecurityConfig:authenticationProvider, dao auth:: start");
         DaoAuthenticationProvider daoAuthProvider=new DaoAuthenticationProvider();
         daoAuthProvider.setUserDetailsService(userDetailsService);
         daoAuthProvider.setPasswordEncoder(passwordEncoder());
+        log.info("✅ SecurityConfig:authenticationProvider, daoAuthProvider:: end");
         return daoAuthProvider;
     }
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        log.info("✅ SecurityConfig:authenticationManager method executed:: "+config.getAuthenticationManager().toString());
         return  config.getAuthenticationManager();
     }
 

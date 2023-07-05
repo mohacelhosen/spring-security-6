@@ -23,12 +23,13 @@ public class LoginController {
 
     @PostMapping("/user/authenticate")
     public ResponseEntity<?> login(@RequestBody LoginInfo userLoginInfo) {
-        log.info("LoginController:login Login Info=  "+userLoginInfo.toString());
+        log.info("⭕ LoginController:login Login Info=  "+userLoginInfo.toString());
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(userLoginInfo.getEmail(), userLoginInfo.getPassword()));
-        log.info("LoginController:login authenticated object");
+        log.info("⭕ LoginController:login authenticated object:: "+authentication.toString());
         if (authentication.isAuthenticated()) {
+            log.info("LoginController:login, is authenticated::"+authentication.isAuthenticated());
             String token = jwtService.generateToken(userLoginInfo.getEmail());
             return new ResponseEntity<>(token, HttpStatus.OK);
         }
